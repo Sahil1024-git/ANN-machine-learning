@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitForge | Premium Workout Advisor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-color: #030712;
+      --card-bg: rgba(17, 24, 39, 0.6);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary: #3b82f6;
+      --primary-glow: rgba(59, 130, 246, 0.5);
+      --secondary: #8b5cf6;
+      --accent: #10b981;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-color);
+      background-image: 
+        radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.15), transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.15), transparent 25%);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Floating shapes for premium background */
+    .bg-shape {
+      position: fixed;
+      filter: blur(120px);
+      z-index: -1;
+      border-radius: 50%;
+      animation: float 20s infinite alternate;
+    }
+    .shape-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--primary-glow); }
+    .shape-2 { bottom: -20%; right: -10%; width: 60vw; height: 60vw; background: rgba(139, 92, 246, 0.2); }
+
+    @keyframes float {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(5%, 10%) scale(1.1); }
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      margin-bottom: 3.5rem;
+      animation: slideDown 0.8s ease-out;
+    }
+    .hero h1 {
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+      background: linear-gradient(to right, #fff, #9ca3af);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero h1 span {
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 1.125rem;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Grid Layout */
+    .layout-grid {
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    @media (max-width: 992px) {
+      .layout-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Glass Cards */
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+    .glass-card:hover {
+      border-color: rgba(255,255,255,0.15);
+    }
+
+    h2.section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    h2.section-title i {
+      color: var(--primary);
+    }
+
+    /* Form */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.25rem;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    label {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-left: 0.25rem;
+    }
+    input, select {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 0.875rem 1rem;
+      color: white;
+      font-family: inherit;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+      appearance: none;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: rgba(0, 0, 0, 0.3);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1.2em;
+    }
+    option {
+      background: #111827;
+      color: white;
+    }
+
+    button.btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 1rem;
+      font-size: 1.125rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 20px -10px var(--primary-glow);
+      font-family: inherit;
+      position: relative;
+      overflow: hidden;
+    }
+    button.btn-primary::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%; width: 50%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s ease;
+    }
+    button.btn-primary:hover::after {
+      left: 100%;
+    }
+    button.btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 25px -10px var(--primary-glow);
+    }
+
+    button.btn-download {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+    button.btn-download:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    /* Result Section */
+    #result-section {
+      display: none;
+      animation: fadeIn 0.8s ease forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .plan-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .plan-badge {
+      display: inline-block;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent);
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      margin-bottom: 0.5rem;
+    }
+    .plan-title {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #fff, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .metric-card {
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 1.25rem;
+      text-align: center;
+      transition: transform 0.2s ease;
+    }
+    .metric-card:hover { transform: translateY(-5px); }
+    .metric-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+    }
+    .metric-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 0.25rem;
+    }
+
+    ul.plan-list {
+      list-style: none;
+      display: grid;
+      gap: 1rem;
+    }
+    ul.plan-list li {
+      background: rgba(255,255,255,0.03);
+      padding: 1.25rem;
+      border-radius: 12px;
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      border-left: 4px solid var(--primary);
+    }
+    ul.plan-list li::before {
+      content: '\f058';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      color: var(--primary);
+      margin-top: 0.1rem;
+    }
+
+    /* Chat Panel */
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 500px;
+    }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      background: rgba(0,0,0,0.2);
+      border-radius: 16px;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    /* Scrollbar */
+    .chat-messages::-webkit-scrollbar { width: 6px; }
+    .chat-messages::-webkit-scrollbar-track { background: transparent; }
+    .chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    
+    .msg {
+      max-width: 85%;
+      padding: 1rem 1.25rem;
+      border-radius: 16px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      animation: popIn 0.3s ease;
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .msg.bot {
+      align-self: flex-start;
+      background: rgba(255,255,255,0.05);
+      border-bottom-left-radius: 4px;
+    }
+    .msg.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, var(--primary), #2563eb);
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .chat-suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .suggestion-chip {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text-muted);
+      padding: 0.5rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .suggestion-chip:hover {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .chat-input-wrapper {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .chat-input-wrapper input {
+      border-radius: 999px;
+    }
+    .btn-send {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s;
+      flex-shrink: 0;
+    }
+    .btn-send:hover {
+      transform: scale(1.05);
+      background: #2563eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-shape shape-1"></div>
+  <div class="bg-shape shape-2"></div>
+
+  <main>
+    <section class="hero">
+      <h1>Fit<span>Forge</span></h1>
+      <p>Enter your metrics and let our intelligent engine craft the ultimate workout and nutrition roadmap tailored specifically for your body and goals.</p>
+    </section>
+
+    <div class="layout-grid">
+      <!-- Left Column: Form & Results -->
+      <div style="display: flex; flex-direction: column; gap: 2rem;">
+        
+        <!-- Profile Form -->
+        <section class="glass-card" id="form-section">
+          <h2 class="section-title"><i class="fa-solid fa-user-astronaut"></i> Your Profile</h2>
+          <form id="plan-form" onsubmit="generatePlan(event)">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Age</label>
+                <input id="age" type="number" min="14" max="80" placeholder="e.g. 24" required>
+              </div>
+              <div class="form-group">
+                <label>Gender</label>
+                <select id="gender" required>
+                  <option value="1">Male</option>
+                  <option value="0">Female</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Weight (kg)</label>
+                <input id="weight" type="number" min="30" max="250" step="0.1" placeholder="e.g. 75" required>
+              </div>
+              <div class="form-group">
+                <label>Height (cm)</label>
+                <input id="height" type="number" min="120" max="240" step="0.1" placeholder="e.g. 180" required>
+              </div>
+              <div class="form-group">
+                <label>Experience</label>
+                <select id="level" required>
+                  <option value="0">Beginner</option>
+                  <option value="1">Intermediate</option>
+                  <option value="2">Advanced</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Primary Goal</label>
+                <select id="goal" required>
+                  <option value="fitness">General Fitness</option>
+                  <option value="weight_loss">Weight Loss</option>
+                  <option value="muscle_gain">Muscle Gain</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Preferred Style</label>
+                <select id="workout_type" required>
+                  <option value="Strength">Strength Training</option>
+                  <option value="HIIT">HIIT</option>
+                  <option value="Cardio">Cardio</option>
+                  <option value="Yoga">Yoga</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Commitment (Days/Week)</label>
+                <select id="days" required>
+                  <option value="3">3 Days</option>
+                  <option value="4">4 Days</option>
+                  <option value="5">5 Days</option>
+                  <option value="6">6 Days</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="btn-primary" id="btn-submit">
+              <i class="fa-solid fa-bolt"></i> Generate Master Plan
+            </button>
+          </form>
+        </section>
+
+        <!-- Result Dashboard -->
+        <section class="glass-card" id="result-section">
+          <div class="plan-header">
+            <div>
+              <div class="plan-badge">Recommended Route</div>
+              <h2 id="plan-title" class="plan-title">Plan Name</h2>
+            </div>
+            <button class="btn-download" onclick="downloadPlan()"><i class="fa-solid fa-download"></i> Save Plan</button>
+          </div>
+
+          <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-muted);">Vitals & Analytics</h3>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-icon"><i class="fa-solid fa-weight-scale"></i></div>
+              <div class="metric-value" id="val-bmi">--</div>
+              <div class="metric-label">BMI</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-icon"><i class="fa-solid fa-fire"></i></div>
+              <div class="metric-value" id="val-cal">--</div>
+              <div class="metric-label">Kcal Burn/Session</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-icon"><i class="fa-solid fa-droplet"></i></div>
+              <div class="metric-value" id="val-water">--</div>
+              <div class="metric-label">Liters/Day Daily Water</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+              <div class="metric-value" id="val-bpm">--</div>
+              <div class="metric-label">Max BPM</div>
+            </div>
+          </div>
+
+          <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-muted);">Action Steps</h3>
+          <ul id="plan-details" class="plan-list"></ul>
+        </section>
+
+      </div>
+
+      <!-- Right Column: AI Assistant -->
+      <section class="glass-card chat-container">
+        <h2 class="section-title"><i class="fa-solid fa-robot"></i> AI Coach</h2>
+        
+        <div class="chat-messages" id="chat-messages">
+          <div class="msg bot">Hello! I am your AI coach. Ask me questions about macros, warm-ups, recovery, or consistency!</div>
+        </div>
+        
+        <div class="chat-suggestions">
+          <div class="suggestion-chip" onclick="sendQuick('How much protein?')">🍗 Protein amount</div>
+          <div class="suggestion-chip" onclick="sendQuick('Best warm up?')">🏃‍♂️ Warm-up tips</div>
+          <div class="suggestion-chip" onclick="sendQuick('How to recover fast?')">🛌 Recovery</div>
+        </div>
+
+        <form class="chat-input-wrapper" onsubmit="sendChat(event)">
+          <input id="chat-input" type="text" placeholder="Message Coach..." autocomplete="off">
+          <button type="submit" class="btn-send"><i class="fa-solid fa-paper-plane"></i></button>
+        </form>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    let currentPlanData = null;
+
+    async function generatePlan(event) {
+      event.preventDefault();
+
+      const btn = document.getElementById('btn-submit');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analyzing...';
+      btn.disabled = true;
+
+      const age = document.getElementById('age').value;
+      const weight = document.getElementById('weight').value;
+      const heightCm = document.getElementById('height').value;
+      const gender = document.getElementById('gender').value;
+      const level = document.getElementById('level').value;
+      const goal = document.getElementById('goal').value;
+      const workoutType = document.getElementById('workout_type').value;
+      const days = document.getElementById('days').value;
+
+      const height = parseFloat(heightCm) / 100;
+      const payload = {
+        age: parseInt(age, 10),
+        gender: parseInt(gender, 10),
+        weight: parseFloat(weight),
+        height,
+        workout_type: workoutType,
+        level: parseInt(level, 10),
+        days: parseInt(days, 10),
+        goal,
+      };
+
+      try {
+        const response = await fetch('/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          alert(error.error || 'Prediction failed.');
+          return;
+        }
+
+        const result = await response.json();
+        currentPlanData = result;
+
+        // Populate Dashboard UI
+        document.getElementById('plan-title').textContent = result.plan;
+        
+        if (result.metrics) {
+          document.getElementById('val-bmi').textContent = result.metrics.bmi;
+          document.getElementById('val-cal').textContent = result.metrics.calories_burned;
+          document.getElementById('val-water').textContent = result.metrics.water_intake + 'L';
+          document.getElementById('val-bpm').textContent = result.metrics.max_bpm;
+        }
+
+        document.getElementById('plan-details').innerHTML = result.details.map(item => `<li>${item}</li>`).join('');
+        
+        // Show Result Section smooth
+        const resSec = document.getElementById('result-section');
+        resSec.style.display = 'block';
+        setTimeout(() => {
+          resSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+
+        // Customize Bot Welcome Message upon generation
+        setTimeout(() => {
+          appendMessage(\`I see you're ready for the \${result.plan}! Let me know if you need specific tips for this routine.\`, 'bot');
+        }, 1000);
+
+      } catch (err) {
+        console.error(err);
+        alert('An error occurred connecting to the engine.');
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    }
+
+    async function sendChat(event) {
+      event.preventDefault();
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+      
+      appendMessage(text, 'user');
+      input.value = '';
+
+      const btn = document.querySelector('.btn-send');
+      const oldHtml = btn.innerHTML;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+      btn.disabled = true;
+
+      try {
+        const response = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
+        const data = await response.json();
+        appendMessage(data.reply || "No reply", 'bot');
+      } catch (err) {
+        appendMessage("An error occurred reaching the AI server.", 'bot');
+      } finally {
+        btn.innerHTML = oldHtml;
+        btn.disabled = false;
+      }
+    }
+
+    function appendMessage(text, type) {
+      const container = document.getElementById('chat-messages');
+      const msgDiv = document.createElement('div');
+      msgDiv.className = \`msg \${type}\`;
+      msgDiv.textContent = text;
+      container.appendChild(msgDiv);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function sendQuick(message) {
+      document.getElementById('chat-input').value = message;
+      sendChat(new Event('submit'));
+    }
+
+    function downloadPlan() {
+      if (!currentPlanData) return;
+      
+      const metricsText = currentPlanData.metrics ? \`
+HEALTH METRICS:
+- BMI: \${currentPlanData.metrics.bmi}
+- Calorie Burn/Session: ~\${currentPlanData.metrics.calories_burned} kcal
+- Recommended Water: \${currentPlanData.metrics.water_intake} Liters
+- Max BPM: \${currentPlanData.metrics.max_bpm} bpm
+\` : '';
+
+      const content = \`
+=========================================
+      FITFORGE MASTER PLAN
+=========================================
+
+PLAN NAME: \${currentPlanData.plan}
+\${metricsText}
+ACTION STEPS:
+\${currentPlanData.details.map((d, i) => \`\${i+1}. \${d}\`).join('\\n')}
+
+=========================================
+Keep Pushing Forward! 
+=========================================
+\`;
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = \`FitForge_\${currentPlanData.plan.replace(/\\s+/g, '_')}.txt\`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>
